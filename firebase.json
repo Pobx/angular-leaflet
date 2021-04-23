@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "dist/angular-leaflet",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
