@@ -49,11 +49,12 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     // this.apiUrl = `https://airvista.soc.cmu.ac.th/wrf_chem_out/d01/hourly/${this.initDirectory}/wind_stream/${this.u10v10Directory}.json`;
-    this.apiUrl = `assets/data/${this.initDirectory}/wind_stream/${this.u10v10Directory}.json`;
+    // this.apiUrl = `assets/data/u10v10_d01_2021042411.json`;
+    this.apiUrl = `assets/data/wind-global.json`;
 
     console.log(this.apiUrl);
     this.initializeMap();
-    // this.initializeWindStream();
+    this.initializeWindStream();
   }
 
   private initializeWindStream(): void {
@@ -64,17 +65,18 @@ export class AppComponent implements OnInit, AfterViewInit {
       const velocityName = response
         .map((value) => value.header.parameterNumberName)
         .join(' - ');
-
       this.velocityLayer = L.velocityLayer({
         displayValues: true,
         displayOptions: {
-          velocityType: 'GBR Water',
+          velocityType: 'Pobx',
           position: 'bottomleft',
           emptyString: 'No water data',
         },
         data: response,
-        maxVelocity: 0.6,
-        velocityScale: 0.1, // arbitrary default 0.005
+        minVelocity: 1,
+        maxVelocity: 10,
+        velocityScale: 0.010,
+        opacity: 0.97,
       });
 
       this.layerControl.addOverlay(this.velocityLayer, velocityName);
@@ -82,23 +84,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   private initializeMap(): void {
-    // this.map = L.map('map', {
-    //   center: [13.1643, 100.9307],
-    //   zoom: 6,
-    // });
-
-    // const tiles = L.tileLayer(
-    //   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    //   {
-    //     maxZoom: 18,
-    //     minZoom: 3,
-    //     attribution:
-    //       '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    //   }
-    // );
-
-    // tiles.addTo(this.map);
-
     const EsriWorldImagery = L.tileLayer(
       'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       {
@@ -118,26 +103,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.layerControl = L.control.layers(baseLayers);
     this.layerControl.addTo(this.map);
-    this.http.get(this.apiUrl).subscribe((response: ResponseWindStream[]) => {
-      const velocityName = response
-        .map((value) => value.header.parameterNumberName)
-        .join(' - ');
-
-      this.velocityLayer = L.velocityLayer({
-        displayValues: true,
-        displayOptions: {
-          velocityType: 'GBR Water',
-          position: 'bottomleft',
-          emptyString: 'No water data',
-        },
-        data: response,
-        maxVelocity: 0.6,
-        velocityScale: 0.1, // arbitrary default 0.005
-      });
-
-      // options.layers.push(velocityLayer);
-      this.velocityLayer.addTo(this.map);
-    });
 
     // const marker = L.marker([13.1643, 100.9307]);
     // marker.addTo(this.map);
@@ -145,77 +110,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     // EsriLeaflet.basemapLayer('Topographic').addTo(this.map);
     // console.log(EsriLeaflet);
     // console.log(LeafletVelocity);
-    // const data = [
-    //   {
-    //     header: {
-    //       discipline: 0,
-    //       disciplineName: 'Meteorological products',
-    //       gribEdition: 2,
-    //       gribLength: 76420,
-    //       center: 7,
-    //       centerName: 'US National Weather Service - NCEP(WMC)',
-    //       subcenter: 0,
-    //       refTime: '2016-04-30T06:00:00.000Z',
-    //       significanceOfRT: 1,
-    //       significanceOfRTName: 'Start of forecast',
-    //       productStatus: 0,
-    //       productStatusName: 'Operational products',
-    //       productType: 1,
-    //       productTypeName: 'Forecast products',
-    //       productDefinitionTemplate: 0,
-    //       productDefinitionTemplateName:
-    //         'Analysis/forecast at horizontal level/layer at a point in time',
-    //       parameterCategory: 2,
-    //       parameterCategoryName: 'Momentum',
-    //       parameterNumber: 2,
-    //       parameterNumberName: 'U-component_of_wind',
-    //       parameterUnit: 'm.s-1',
-    //       genProcessType: 2,
-    //       genProcessTypeName: 'Forecast',
-    //       forecastTime: 0,
-    //       surface1Type: 103,
-    //       surface1TypeName: 'Specified height level above ground',
-    //       surface1Value: 10.0,
-    //       surface2Type: 255,
-    //       surface2TypeName: 'Missing',
-    //       surface2Value: 0.0,
-    //       gridDefinitionTemplate: 0,
-    //       gridDefinitionTemplateName: 'Latitude_Longitude',
-    //       numberPoints: 65160,
-    //       shape: 6,
-    //       shapeName: 'Earth spherical with radius of 6,371,229.0 m',
-    //       gridUnits: 'degrees',
-    //       resolution: 48,
-    //       winds: 'true',
-    //       scanMode: 0,
-    //       nx: 360,
-    //       ny: 181,
-    //       basicAngle: 0,
-    //       subDivisions: 0,
-    //       lo1: 0.0,
-    //       la1: 90.0,
-    //       lo2: 359.0,
-    //       la2: -90.0,
-    //       dx: 1.0,
-    //       dy: 1.0,
-    //     },
-    //     data: [],
-    //   },
-    // ];
 
     console.log(L);
-
-    // const velocityLayer = L.velocityLayer({
-    //   displayValues: true,
-    //   displayOptions: {
-    //     velocityType: 'Global Wind',
-    //     position: 'bottomleft',
-    //     emptyString: 'No wind data',
-    //   },
-    //   data,
-    //   maxVelocity: 25,
-    // });
-
-    // velocityLayer.addTo(this.map);
   }
 }
