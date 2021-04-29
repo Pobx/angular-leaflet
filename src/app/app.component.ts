@@ -53,10 +53,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     // this.apiUrl = `https://airvista.soc.cmu.ac.th/wrf_chem_out/d01/hourly/${this.initDirectory}/wind_stream/${this.u10v10Directory}.json`;
     // this.apiUrl = `assets/data/u10v10_d01_2021042411.json`;
-    this.apiUrl = `assets/data/wind-global.json`;
+    this.apiUrl = `assets/data/2021-04-20.json`;
 
     this.initializeMap();
-    this.initializeWindStream();
+    // this.initializeWindStream();
   }
 
   private initializeWindStream(): void {
@@ -94,17 +94,26 @@ export class AppComponent implements OnInit, AfterViewInit {
       Satellite: EsriWorldImagery,
     };
 
+    const initializeCurrentMonth = new Date();
     const firstDayOfMonth = this.datePipe.transform(
-      new Date(this.dateObj.getFullYear(), this.dateObj.getMonth(), 1),
+      new Date(
+        initializeCurrentMonth.getFullYear(),
+        initializeCurrentMonth.getMonth(),
+        1
+      ),
       'yyyy-MM-dd'
     );
 
     const lastDayofMonth = this.datePipe.transform(
-      new Date(this.dateObj.getFullYear(), this.dateObj.getMonth() + 1, 0),
+      new Date(
+        initializeCurrentMonth.getFullYear(),
+        initializeCurrentMonth.getMonth() + 1,
+        0
+      ),
       'yyyy-MM-dd'
     );
 
-    const currentTime = this.dateObj.getTime();
+    const currentTime = initializeCurrentMonth.getTime();
 
     const options = {
       layers: [EsriWorldImagery],
@@ -122,11 +131,53 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.map = L.map('map', options).setView([13.1643, 100.9307], 9);
 
-    console.log(this.map);
+    this.http.get(this.apiUrl).subscribe((response: ResponseWindStream[]) => {
+      const velocityName = response
+        .map((value) => value.header.parameterNumberName)
+        .join(' - ');
+      this.velocityLayer = L.velocityLayer({
+        displayValues: true,
+        displayOptions: {
+          velocityType: 'Pobx',
+          position: 'bottomleft',
+          emptyString: 'No water data',
+        },
+        data: response,
+        minVelocity: 1,
+        maxVelocity: 10,
+        velocityScale: 0.2,
+        opacity: 0.97,
+      });
+
+      this.velocityLayer.addTo(this.map);
+    });
+
     this.map.timeDimension.on('timeloading', (data) => {
+      const timeMinusOneDay = data.time - 24 * 60 * 60 * 1000;
+      const dateloading = this.datePipe.transform(
+        timeMinusOneDay,
+        'yyyy-MM-dd'
+      );
       console.log(data);
-      const dateloading = this.datePipe.transform(data.time, 'yyyy-MM-dd');
       console.log(dateloading);
+      console.log(this.velocityLayer);
+
+      this.apiUrl = `assets/data/${dateloading}.json`;
+
+      console.log(this.apiUrl);
+
+      this.http.get(this.apiUrl).subscribe(
+        (response: ResponseWindStream[]) => {
+          if (response) {
+            this.velocityLayer.setData(response);
+          }
+        },
+        (err) => {
+          window.alert(`ไม่พบข้อมูลวันที่ ${dateloading}`);
+          console.log(JSON.stringify(err));
+          // this.velocityLayer.setData([{ header: {}, data: [] }]);
+        }
+      );
     });
 
     // const wmsUrl = 'https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc';
