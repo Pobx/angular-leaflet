@@ -158,9 +158,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         timeMinusOneDay,
         'yyyy-MM-dd'
       );
-      console.log(data);
-      console.log(dateloading);
-      console.log(this.velocityLayer);
 
       this.apiUrl = `assets/data/${dateloading}.json`;
 
@@ -173,31 +170,12 @@ export class AppComponent implements OnInit, AfterViewInit {
           }
         },
         (err) => {
-          window.alert(`ไม่พบข้อมูลวันที่ ${dateloading}`);
           console.log(JSON.stringify(err));
-          // this.velocityLayer.setData([{ header: {}, data: [] }]);
         }
       );
     });
 
-    // const wmsUrl = 'https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc';
-    // const wmsUrl = `assets/data/u10v10_d01_2021042411.json`;
-    // const wmsLayer = L.tileLayer.wms(wmsUrl, {
-    //   layers: 'pobx',
-    //   format: 'image/png',
-    //   transparent: true,
-    //   attribution: 'SOCIB HF RADAR | sea_water_velocity',
-    // });
-
-    // const tdWmsLayer = L.timeDimension.layer.wms(wmsLayer);
-    // tdWmsLayer.addTo(this.map);
-
     this.layerControl = L.control.layers(baseLayers);
     this.layerControl.addTo(this.map);
-
-    // const marker = L.marker([13.1643, 100.9307]);
-    // marker.addTo(this.map);
-
-    // EsriLeaflet.basemapLayer('Topographic').addTo(this.map);
   }
 }
