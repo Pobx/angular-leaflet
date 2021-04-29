@@ -34,12 +34,14 @@
             ],
             "styles": [
               "src/styles.scss",
-              "./node_modules/leaflet/dist/leaflet.css",
-              "node_modules/leaflet-velocity/dist/leaflet-velocity.min.css"
+              "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/leaflet-velocity/dist/leaflet-velocity.min.css",
+              "node_modules/leaflet-timedimension/dist/leaflet.timedimension.control.min.css"
             ],
             "scripts": [
-              "./node_modules/leaflet/dist/leaflet.js",
-              "./node_modules/leaflet-velocity/dist/leaflet-velocity.js"
+              "node_modules/leaflet/dist/leaflet.js",
+              "node_modules/leaflet-velocity/dist/leaflet-velocity.js",
+              "node_modules/leaflet-timedimension/dist/leaflet.timedimension.min.js"
             ]
           },
           "configurations": {
