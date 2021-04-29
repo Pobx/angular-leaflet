@@ -15,7 +15,7 @@ export interface HeaderEntity {
   refTime: string;
 }
 
-export interface WindStream {
+export interface ResponseWindStream {
   header: HeaderEntity;
   data: number[];
 }
