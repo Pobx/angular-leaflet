@@ -2,6 +2,7 @@ import { Component, AfterViewInit, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import * as EsriLeaflet from 'esri-leaflet';
 import 'leaflet-velocity';
+import 'leaflet-timedimension';
 import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { ResponseWindStream } from 'src/models/wind.stream.model';
@@ -36,15 +37,17 @@ export class AppComponent implements OnInit, AfterViewInit {
   private initDirectory: string;
   private u10v10Directory: string;
   private velocityLayer;
+  private dateObj: Date;
 
   constructor(private http: HttpClient, private datePipe: DatePipe) {}
 
   ngOnInit(): void {
-    const dateObj = new Date();
-    const currentDate = dateObj.setDate(dateObj.getDate() - 5);
+    this.dateObj = new Date();
+    // const currentDate = this.dateObj.setDate(this.dateObj.getDate() - 5);
+    const currentDate = this.dateObj.setDate(this.dateObj.getDate());
     const dateTransform = this.datePipe.transform(currentDate, 'yyyyMMdd');
     this.initDirectory = `init${dateTransform}00`;
-    this.u10v10Directory = `u10v10_d01_${dateTransform}${dateObj.getHours()}`;
+    this.u10v10Directory = `u10v10_d01_${dateTransform}${this.dateObj.getHours()}`;
   }
 
   ngAfterViewInit(): void {
@@ -52,16 +55,12 @@ export class AppComponent implements OnInit, AfterViewInit {
     // this.apiUrl = `assets/data/u10v10_d01_2021042411.json`;
     this.apiUrl = `assets/data/wind-global.json`;
 
-    console.log(this.apiUrl);
     this.initializeMap();
     this.initializeWindStream();
   }
 
   private initializeWindStream(): void {
     this.http.get(this.apiUrl).subscribe((response: ResponseWindStream[]) => {
-      console.log(response);
-      console.log(response[0].header);
-      console.log(response[0].data);
       const velocityName = response
         .map((value) => value.header.parameterNumberName)
         .join(' - ');
@@ -75,7 +74,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         data: response,
         minVelocity: 1,
         maxVelocity: 10,
-        velocityScale: 0.010,
+        velocityScale: 0.01,
         opacity: 0.97,
       });
 
@@ -95,11 +94,50 @@ export class AppComponent implements OnInit, AfterViewInit {
       Satellite: EsriWorldImagery,
     };
 
+    const firstDayOfMonth = this.datePipe.transform(
+      new Date(this.dateObj.getFullYear(), this.dateObj.getMonth(), 1),
+      'yyyy-MM-dd'
+    );
+
+    const lastDayofMonth = this.datePipe.transform(
+      new Date(this.dateObj.getFullYear(), this.dateObj.getMonth() + 1, 0),
+      'yyyy-MM-dd'
+    );
+
+    const currentTime = this.dateObj.getTime();
+
     const options = {
       layers: [EsriWorldImagery],
+      timeDimension: true,
+      timeDimensionOptions: {
+        times: `${firstDayOfMonth}/${lastDayofMonth}/PT1H`,
+        // timeInterval: `${firstDayOfMonth}/${lastDayofMonth}`,
+        // period: 'PT1H',
+        validTimeRange: '00:01/23:59',
+        currentTime,
+        timeZones: ['local', 'UTC'],
+      },
+      timeDimensionControl: true,
     };
 
     this.map = L.map('map', options).setView([13.1643, 100.9307], 9);
+
+    console.log(this.map);
+    this.map.timeDimension.on('timeloading', (data) => {
+      console.log(data);
+    });
+
+    // const wmsUrl = 'https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc';
+    // const wmsUrl = `assets/data/u10v10_d01_2021042411.json`;
+    // const wmsLayer = L.tileLayer.wms(wmsUrl, {
+    //   layers: 'pobx',
+    //   format: 'image/png',
+    //   transparent: true,
+    //   attribution: 'SOCIB HF RADAR | sea_water_velocity',
+    // });
+
+    // const tdWmsLayer = L.timeDimension.layer.wms(wmsLayer);
+    // tdWmsLayer.addTo(this.map);
 
     this.layerControl = L.control.layers(baseLayers);
     this.layerControl.addTo(this.map);
@@ -108,9 +146,5 @@ export class AppComponent implements OnInit, AfterViewInit {
     // marker.addTo(this.map);
 
     // EsriLeaflet.basemapLayer('Topographic').addTo(this.map);
-    // console.log(EsriLeaflet);
-    // console.log(LeafletVelocity);
-
-    console.log(L);
   }
 }
