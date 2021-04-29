@@ -110,7 +110,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       layers: [EsriWorldImagery],
       timeDimension: true,
       timeDimensionOptions: {
-        times: `${firstDayOfMonth}/${lastDayofMonth}/PT1H`,
+        times: `${firstDayOfMonth}/${lastDayofMonth}/P1D`,
         // timeInterval: `${firstDayOfMonth}/${lastDayofMonth}`,
         // period: 'PT1H',
         validTimeRange: '00:01/23:59',
@@ -125,6 +125,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     console.log(this.map);
     this.map.timeDimension.on('timeloading', (data) => {
       console.log(data);
+      const dateloading = this.datePipe.transform(data.time, 'yyyy-MM-dd');
+      console.log(dateloading);
     });
 
     // const wmsUrl = 'https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc';
