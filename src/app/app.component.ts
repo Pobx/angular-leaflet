@@ -40,7 +40,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   constructor(private http: HttpClient, private datePipe: DatePipe) {}
 
   ngOnInit(): void {
-    // https://airvista.soc.cmu.ac.th/wrf_chem_out/d01/hourly/init2021042400/wind_stream/u10v10_d01_2021042407.json
     const dateObj = new Date();
     const currentDate = dateObj.setDate(dateObj.getDate() - 5);
     const dateTransform = this.datePipe.transform(currentDate, 'yyyyMMdd');
@@ -49,38 +48,37 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    console.log(
-      `https://airvista.soc.cmu.ac.th/wrf_chem_out/d01/hourly/init2021042400/wind_stream/u10v10_d01_2021042407.json`
-    );
-    this.apiUrl = `https://airvista.soc.cmu.ac.th/wrf_chem_out/d01/hourly/${this.initDirectory}/wind_stream/${this.u10v10Directory}.json`;
+    // this.apiUrl = `https://airvista.soc.cmu.ac.th/wrf_chem_out/d01/hourly/${this.initDirectory}/wind_stream/${this.u10v10Directory}.json`;
+    this.apiUrl = `assets/data/${this.initDirectory}/wind_stream/${this.u10v10Directory}.json`;
+
     console.log(this.apiUrl);
     this.initializeMap();
-    this.initializeWindStream();
+    // this.initializeWindStream();
   }
 
   private initializeWindStream(): void {
-    this.http.get(this.apiUrl).subscribe((response: ResponseWindStream) => {
+    this.http.get(this.apiUrl).subscribe((response: ResponseWindStream[]) => {
       console.log(response);
-      console.log(response.header);
-      console.log(response.data);
+      console.log(response[0].header);
+      console.log(response[0].data);
+      const velocityName = response
+        .map((value) => value.header.parameterNumberName)
+        .join(' - ');
+
+      this.velocityLayer = L.velocityLayer({
+        displayValues: true,
+        displayOptions: {
+          velocityType: 'GBR Water',
+          position: 'bottomleft',
+          emptyString: 'No water data',
+        },
+        data: response,
+        maxVelocity: 0.6,
+        velocityScale: 0.1, // arbitrary default 0.005
+      });
+
+      this.layerControl.addOverlay(this.velocityLayer, velocityName);
     });
-
-    // this.velocityLayer = L.velocityLayer({
-    //   displayValues: true,
-    //   displayOptions: {
-    //     velocityType: 'GBR Water',
-    //     position: 'bottomleft',
-    //     emptyString: 'No water data',
-    //   },
-    //   data: data,
-    //   maxVelocity: 0.6,
-    //   velocityScale: 0.1, // arbitrary default 0.005
-    // });
-
-    // this.layerControl.addOverlay(
-    //   this.velocityLayer,
-    //   'Ocean Current - Great Barrier Reef'
-    // );
   }
 
   private initializeMap(): void {
@@ -112,13 +110,34 @@ export class AppComponent implements OnInit, AfterViewInit {
       Satellite: EsriWorldImagery,
     };
 
-    this.map = L.map('map', { layers: [EsriWorldImagery] }).setView(
-      [13.1643, 100.9307],
-      9
-    );
+    const options = {
+      layers: [EsriWorldImagery],
+    };
+
+    this.map = L.map('map', options).setView([13.1643, 100.9307], 9);
 
     this.layerControl = L.control.layers(baseLayers);
     this.layerControl.addTo(this.map);
+    this.http.get(this.apiUrl).subscribe((response: ResponseWindStream[]) => {
+      const velocityName = response
+        .map((value) => value.header.parameterNumberName)
+        .join(' - ');
+
+      this.velocityLayer = L.velocityLayer({
+        displayValues: true,
+        displayOptions: {
+          velocityType: 'GBR Water',
+          position: 'bottomleft',
+          emptyString: 'No water data',
+        },
+        data: response,
+        maxVelocity: 0.6,
+        velocityScale: 0.1, // arbitrary default 0.005
+      });
+
+      // options.layers.push(velocityLayer);
+      this.velocityLayer.addTo(this.map);
+    });
 
     // const marker = L.marker([13.1643, 100.9307]);
     // marker.addTo(this.map);
