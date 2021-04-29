@@ -4,6 +4,7 @@ import * as EsriLeaflet from 'esri-leaflet';
 import 'leaflet-velocity';
 import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
+import { ResponseWindStream } from 'src/models/wind.stream.model';
 
 const iconRetinaUrl = 'assets/marker-icon-2x.png';
 const iconUrl = 'assets/marker-icon.png';
@@ -58,8 +59,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   private initializeWindStream(): void {
-    this.http.get(this.apiUrl).subscribe((response) => {
+    this.http.get(this.apiUrl).subscribe((response: ResponseWindStream) => {
       console.log(response);
+      console.log(response.header);
+      console.log(response.data);
     });
 
     // this.velocityLayer = L.velocityLayer({
