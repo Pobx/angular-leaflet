@@ -124,7 +124,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         // period: 'PT1H',
         validTimeRange: '00:01/23:59',
         currentTime,
-        timeZones: ['local', 'UTC'],
       },
       timeDimensionControl: true,
     };
@@ -144,8 +143,8 @@ export class AppComponent implements OnInit, AfterViewInit {
         },
         data: response,
         minVelocity: 1,
-        maxVelocity: 10,
-        velocityScale: 0.2,
+        maxVelocity: 25,
+        velocityScale: 0.1,
         opacity: 0.97,
       });
 
@@ -160,8 +159,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       );
 
       this.apiUrl = `assets/data/${dateloading}.json`;
-
-      console.log(this.apiUrl);
 
       this.http.get(this.apiUrl).subscribe(
         (response: ResponseWindStream[]) => {
