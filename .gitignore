@@ -7,7 +7,7 @@
 # Only exists if Bazel was run
 /bazel-out
 /public
-.firebase
+.firebase/*.cache
 
 # dependencies
 /node_modules
