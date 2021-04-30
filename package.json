@@ -21,6 +21,7 @@
     "@angular/router": "~9.1.6",
     "esri-leaflet": "^3.0.1",
     "iso8601-js-period": "^0.2.1",
+    "jquery": "^3.6.0",
     "leaflet": "^1.7.1",
     "leaflet-timedimension": "^1.1.1",
     "leaflet-velocity": "^1.9.2",
