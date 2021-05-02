@@ -51,9 +51,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // this.apiUrl = `https://airvista.soc.cmu.ac.th/wrf_chem_out/d01/hourly/${this.initDirectory}/wind_stream/${this.u10v10Directory}.json`;
-    // this.apiUrl = `assets/data/u10v10_d01_2021042411.json`;
-    this.apiUrl = `assets/data/2021-04-20.json`;
+    this.apiUrl = `https://rcces.soc.cmu.ac.th/airquality_data/forecasts/Hourly/${this.initDirectory}/wind_stream/${this.u10v10Directory}.json`;
+    // this.apiUrl = `https://rcces.soc.cmu.ac.th/airquality_data/forecasts/Hourly/2020-12-05/Thailand_20km/Wind_Stream/u10v10_d01_2020-12-05T00.json`;
+    // this.apiUrl = `assets/data/2021-04-20.json`;
 
     this.initializeMap();
     // this.initializeWindStream();
